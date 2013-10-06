@@ -1,29 +1,52 @@
 {
-  "name": "vnodehash",
-  "version": "0.0.0",
-  "description": "Consistent hashing using vnodes",
-  "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
-  "scripts": {
-    "test": "[ -f ./node_modules/.bin/mocha ] && ./node_modules/.bin/mocha --ui exports --reporter spec --bail test/test.js || mocha --ui exports --reporter spec --bail test/test.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mixu/fail.git"
-  },
+  "name": "vnhr",
+  "version": "0.0.1",
+  "description": "virtual node hash ring",
   "keywords": [
     "consistent",
     "hash",
-    "distribution",
     "hashing",
     "distributed"
   ],
-  "author": "Mikito Takada <mikito.takada@gmail.com>",
-  "license": "BSD",
-  "dependencies": { },
+  "homepage": "https://github.com/kordon/vnhr",
+  "bugs": {
+    "url": "http://github.com/kordon/vnhr/issues",
+    "email": "mail@sergioramos.me"
+  },
+  "licenses": [
+    {
+      "url": "https://raw.github.com/kordon/vnhr/master/license/mixu",
+      "type": "BSD"
+    },
+    {
+      "url": "https://raw.github.com/kordon/vnhr/master/license/kordon",
+      "type": "MIT"
+    }
+  ],
+  "contributors": [
+    "Mikito Takada <mikito.takada@gmail.com> (http://mixu.net)",
+    "Sérgio Ramos <mail@sergioramos.me> (http://sergioramos.me/)"
+  ],
+  "main": "src/vnhr.js",
+  "directories": {
+    "lib": "src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kordon/vnhr.git"
+  },
+  "scripts": {
+    "test": "make test test-coveralls"
+  },
+  "dependencies": {},
   "devDependencies": {
-    "mocha": "~1.7.0"
+    "mocha-lcov-reporter": "0.0.x",
+    "jscoverage": "0.3.x",
+    "coveralls": "2.3.x",
+    "level": "0.17.x",
+    "mocha": "1.13.x"
+  },
+  "engines": {
+    "node": ">=0.8"
   }
 }

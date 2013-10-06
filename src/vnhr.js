@@ -1,4 +1,4 @@
-var crypto = require('crypto');
+var sha1 = require('sha1')
 
 function Partitioner(max) {
   // the number Q, e.g. the maximum number of nodes
