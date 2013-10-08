@@ -17,4 +17,8 @@ npm install [--save/--save-dev] vnhr
 
 ## license
 
-MIT
+ * Original [mixu/vnodehash](https://github.com/mixu/vnodehash) code is under the [BSD license](license/mixu)
+ * Updates from [kordon/vnhr](https://github.com/kordon/vnhr) are under the [MIT license](license/kordon)
+ 
+ * Some code/tests/api inspired by [yunong/node-fash](https://github.com/yunong/node-fash) code is under the [MIT license](license/yunong)
+ * Some code/tests/api inspired by [3rd-Eden/node-hashring](https://github.com/3rd-Eden/node-hashring) code is under the [MIT license](license/3rd-Eden)
