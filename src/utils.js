@@ -15,6 +15,7 @@ exports.args = function () {
   }
 
   Array.prototype.slice.apply(arguments).forEach(function (argument) {
+    if(type(argument) === 'string') args.servers = [argument]
     if(type(argument) === 'array') args.servers = argument
     if(type(argument) === 'object') args.options = merge(args.options, argument)
   })
