@@ -1,70 +1,71 @@
-var sha1 = require('sha1')
+var type = require('type-component'),
+    hex = require('bytewise/hex'),
+    utils = require('./utils'),
+    sha1 = require('sha1')
 
-function Partitioner(max) {
-  // the number Q, e.g. the maximum number of nodes
-  // (e.g. the number of pieces the hash table output is split into)
-  this.maxNodes = max || 12;
-  // the number S, e.g. the determines the current ratio of vnodes to nodes
-  this.currentNodes = 0;
 
-  // array, size is the maxNodes, values are node ID numbers
-  this.vnodesToNodes = [];
-  for(var i = 0; i < this.maxNodes; i++) {
-    this.vnodesToNodes[i] = 0;
-  }
-  this.metadata = {};
+var vnhr = module.exports = function (opts) {
+  if(!(this instanceof vnhr)) return new vnhr(utils.args.apply(null, arguments))
+  
+  this.replicas = opts.options.replicas
+  this.vnodes = opts.options.vnodes
+  this.ring = utils.array(this.vnodes)
+  this.metadata = Object()
+  this.pnodes = Array()
+
+  opts.servers.forEach(this.push, this)
 }
 
-Partitioner.prototype.addNode = function(metadata) {
-  // Change the table to i % currentNodes for each value.
-  // Note that this reassigns almost all the nodes since the whole sequence changes
-  // A better strategy would aim to reassign a minimum of nodes
-  this.metadata[ metadata.id ] = metadata;
-  // since we initialize the table to zero, the first node doesn't
-  // need to recalculate
-  this.currentNodes = Object.keys(this.metadata).length;
-  if(this.currentNodes == 0) return;
-  for(var i = 0; i < this.maxNodes; i++) {
-    this.vnodesToNodes[i] = i % this.currentNodes;
-  }
-};
+require('util').inherits(vnhr, require('events').EventEmitter)
 
-// returns the node, and count nodes after it
-Partitioner.prototype.getNodeList = function(key, count) {
-  if(this.currentNodes == 0) return false;
-  // 32bits from md5
-  var num = parseInt(crypto.createHash('md5').update(key).digest('hex').substr(0, 8), 16),
-      vnode = num % this.maxNodes,
-      result = [],
-      self = this;
-  if(!count) {
-    count = 1;
-  }
-  for(var i = 0; i < count; i++) {
-    result.push(this.vnodesToNodes[ (vnode + i) % this.maxNodes ]);
-  }
-  // now fetch the corresponding metadata nodes
-  var sortedMeta = Object.keys(this.metadata).sort();
-  return result.map(function(node) {
-    return self.getMeta(sortedMeta[node]);
-  });
-};
+vnhr.prototype.push = function (server) {
+  server = utils.metadata(server)
+  
+  if(this.pnodes.indexOf(server.id) >= 0) return false
+  
+  var before = JSON.parse(JSON.stringify(this.ring))
+  
+  this.metadata[server.id] = server
+  this.pnodes.push(server.id)
+  this.pnodes = this.pnodes.sort()
+  
+  this.ring = this.ring.map(function (server, i) {
+    return this.pnodes[i % Object.keys(this.metadata).length]
+  }, this)
+  
+  var after = JSON.parse(JSON.stringify(this.ring))
+  
+  this.propagate(before, after)
+}
 
-// Must make sure that when the nodes are removed,
-// the vnodes are allocated back in a way that divides them
-// equally among the remaining nodes
-Partitioner.prototype.removeNode = function(id) {
-  delete this.metadata[id];
-  this.currentNodes = Object.keys(this.metadata).length;
-  // if there are no nodes, no point in recalculating
-  if(this.currentNodes == 0) return;
-  for(var i = 0; i < this.maxNodes; i++) {
-    this.vnodesToNodes[i] = i % this.currentNodes;
-  }
-};
+vnhr.prototype.propagate = function (before, after) {
+  if(before.length > after.length) before.forEach(function (vnode, i) {
+    if(i < after.length) return
+    
+    this.emit('rm', this.metadata[vnode], i)
+  }, this)
+  
+  before.forEach(function (vnode, i) {
+    this.emit('handoff', this.metadata[vnode], this.metadata[after[i]], i)
+  }, this)
+  
+  if(before.length < after.length) after.forEach(function (vnode, i) {
+    if(i < before.length) return
+    
+    this.emit('add', this.metadata[vnode], i)
+  }, this)
+}
 
-Partitioner.prototype.getMeta = function(index) {
-  return this.metadata[index];
-};
+vnhr.prototype.vnode = function (key, count) {
+  if(!this.pnodes.length) return false
+  if(type(count) !== 'number') count = this.replicas
+  if(this.replicas < this.pnodes.length) count = this.pnodes.length - 1
+  
+  key = sha1(key)
+  var num = hex.encode(key).substring(0, 8)
+  var vnode = num % this.ring.length
 
-module.exports = Partitioner;
+  return this.ring.splice(vnode - count, count).map(function (vnode) {
+    return this.metadata[vnode]
+  }, this)
+}

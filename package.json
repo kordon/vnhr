@@ -5,8 +5,11 @@
   "keywords": [
     "consistent",
     "hash",
+    "ring",
+    "consistent hashing",
     "hashing",
-    "distributed"
+    "distributed",
+    "hash ring"
   ],
   "homepage": "https://github.com/kordon/vnhr",
   "bugs": {
@@ -38,7 +41,12 @@
   "scripts": {
     "test": "make test test-coveralls"
   },
-  "dependencies": {},
+  "dependencies": {
+    "sha1": "1.1.x",
+    "deepmerge": "0.2.x",
+    "type-component": "0.0.x",
+    "bytewise": "0.6.x"
+  },
   "devDependencies": {
     "mocha-lcov-reporter": "0.0.x",
     "jscoverage": "0.3.x",
