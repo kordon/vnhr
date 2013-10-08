@@ -8,10 +8,8 @@ var vnhr = module.exports = function (opts) {
   if(!(this instanceof vnhr)) return new vnhr(utils.args.apply(null, arguments))
   
   this.replicas = opts.options.replicas
-  this.vnodes = opts.options.vnodes
-  this.ring = utils.array(this.vnodes)
+  this.ring = utils.array(opts.options.vnodes)
   this.metadata = Object()
-  this.pnodes = Array()
 
   opts.servers.forEach(this.push, this)
 }
@@ -21,20 +19,17 @@ require('util').inherits(vnhr, require('events').EventEmitter)
 vnhr.prototype.push = function (server) {
   server = utils.metadata(server)
   
-  if(this.pnodes.indexOf(server.id) >= 0) return false
-  
+  if(Object.keys(this.metadata).indexOf(server.id) >= 0) return false
   var before = JSON.parse(JSON.stringify(this.ring))
   
   this.metadata[server.id] = server
-  this.pnodes.push(server.id)
-  this.pnodes = this.pnodes.sort()
+  var pnodes = Object.keys(this.metadata).sort()
   
   this.ring = this.ring.map(function (server, i) {
-    return this.pnodes[i % Object.keys(this.metadata).length]
+    return pnodes[i % Object.keys(this.metadata).length]
   }, this)
   
   var after = JSON.parse(JSON.stringify(this.ring))
-  
   this.propagate(before, after)
 }
 
@@ -57,9 +52,11 @@ vnhr.prototype.propagate = function (before, after) {
 }
 
 vnhr.prototype.vnode = function (key, count) {
-  if(!this.pnodes.length) return false
+  var pnodes = Object.keys(this.metadata)
+  
+  if(!pnodes.length) return false
   if(type(count) !== 'number') count = this.replicas
-  if(this.replicas < this.pnodes.length) count = this.pnodes.length - 1
+  if(this.replicas < pnodes.length) count = pnodes.length - 1
   
   key = sha1(key)
   var num = hex.encode(key).substring(0, 8)
