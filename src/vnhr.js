@@ -51,7 +51,7 @@ vnhr.prototype.propagate = function (before, after) {
   }, this)
 }
 
-vnhr.prototype.vnode = function (key, count) {
+vnhr.prototype.get = function (key, count) {
   var pnodes = Object.keys(this.metadata)
   
   if(!pnodes.length) return false
@@ -62,7 +62,13 @@ vnhr.prototype.vnode = function (key, count) {
   var num = hex.encode(key).substring(0, 8)
   var vnode = num % this.ring.length
 
-  return this.ring.splice(vnode - count, count).map(function (vnode) {
-    return this.metadata[vnode]
+  return this.ring.map(function (pnode, vnode) {
+    return [pnode, vnode]
+  }).splice(vnode - count + 1, count).map(function (vpnode) {
+    return {
+      pnode: this.metadata[vpnode[0]],
+      vnode: vpnode[1],
+      main: vpnode[1] === vnode
+    }
   }, this)
 }
