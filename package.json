@@ -51,7 +51,6 @@
     "mocha-lcov-reporter": "0.0.x",
     "jscoverage": "0.3.x",
     "coveralls": "2.3.x",
-    "level": "0.17.x",
     "mocha": "1.13.x"
   },
   "engines": {
