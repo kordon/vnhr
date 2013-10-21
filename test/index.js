@@ -1,5 +1,6 @@
 var vnhr = process.env.VNHR_COV ? require('../lib-cov/vnhr') : require('../'),
     utils = process.env.VNHR_COV ? require('../lib-cov/utils') : require('../src/utils'),
+    interpolate = require('util').format,
     assert = require('assert')
 
 suite('utils')
@@ -176,6 +177,32 @@ test('key lookup', function () {
   assert(bar.main.name !== foo.main.name)
 })
 
+test('add pnode twice', function () {
+  var pnodes = [
+    '192.168.0.102:11212',
+    '192.168.0.103:11213',
+    '192.168.0.104:11214'
+  ]
+
+  var hr = vnhr(pnodes)
+
+  assert(hr.push('192.168.0.104:11214') === false)
+})
+
+test('exceed pnode limit', function () {
+  var hr = vnhr()
+  var pnodes = {}
+
+  utils.array(1024).map(function (n, i) {
+    var pnode = utils.metadata(interpolate('192.168.0.102:%s', i))
+    pnodes[pnode.id] = pnode
+  })
+
+  hr.pnodes = pnodes
+
+  assert(hr.push('192.168.0.102:1024') === false)
+})
+
 test('even distribution', function () {
   var hr = vnhr([
     '192.168.0.102:11212',
@@ -259,10 +286,10 @@ test('consistent results', function () {
 // test('handoff event', function (done) {
 //   var my_server = '192.168.0.103:11213'
 //   var hr = vnhr([my_server, '192.168.0.104:11214'])
-// 
+//
 //   hr.on('handoff', function (from, to) {
 //     if(from.name !== my_server || to.name !== my_server) return
 //   })
-// 
+//
 //   hr.push('192.168.0.102:11212')
 // })
