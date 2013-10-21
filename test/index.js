@@ -203,6 +203,10 @@ test('exceed pnode limit', function () {
   assert(hr.push('192.168.0.102:1024') === false)
 })
 
+test('get without pnodes', function () {
+  assert(vnhr().get('foo') === false)
+})
+
 test('even distribution', function () {
   var hr = vnhr([
     '192.168.0.102:11212',
