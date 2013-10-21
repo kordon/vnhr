@@ -100,6 +100,8 @@ vnhr.prototype.push = function (server) {
   var after = JSON.parse(JSON.stringify(this.ring))
 
   this.propagate(before, after)
+
+  return true
 }
 
 /**
