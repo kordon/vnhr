@@ -4,6 +4,7 @@
 [![Build Status](https://secure.travis-ci.org/kordon/vnhr.png)](http://travis-ci.org/kordon/vnhr)
 [![Dependency Status](https://gemnasium.com/kordon/vnhr.png)](https://gemnasium.com/kordon/vnhr)
 [![Coverage Status](https://coveralls.io/repos/kordon/vnhr/badge.png?branch=master)](https://coveralls.io/r/kordon/vnhr?branch=master)
+[![Code Climate](https://codeclimate.com/github/kordon/vnhr.png)](https://codeclimate.com/github/kordon/vnhr)
 
 Consistent hashing using virtual nodes.
 
