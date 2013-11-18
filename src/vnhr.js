@@ -122,7 +122,7 @@ vnhr.prototype.propagate = function (before, after) {
     if(from && from.name === to.name)
       return
 
-    this.emit('handoff', from, to, vpnode.vnode)
+    this.emit('handoff', from, to, after[i].vnode)
   }, this)
 }
 
