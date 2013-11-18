@@ -1,6 +1,6 @@
 {
   "name": "vnhr",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "virtual node hash ring",
   "keywords": [
     "consistent",
